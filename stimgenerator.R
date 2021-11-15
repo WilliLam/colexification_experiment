@@ -4,7 +4,7 @@
 
 
 SCRIPTPATH = "expgen_scripts.R" # full path to where the expgen_scripts.R file is
-DROPDIR    = "experimentdb"     # full path to where the stims should be saved
+DROPDIR    = "./"     # full path to where the stims should be saved
 
 source(SCRIPTPATH)  # load required scripts
 
@@ -13,7 +13,7 @@ source(SCRIPTPATH)  # load required scripts
 simlexpath = "/SimLex-999.txt"   # path to the Simlex999  dataset txt file
 dictpath   = "/en_GB-large.dic"  # path to some English wordlist
 # we used https://sourceforge.net/projects/wordlist/files/speller/2019.10.06/hunspell-en_GB-large-2019.10.06.zip/download
-vectorspath = "/fasttext_wikipedia2019.txt" # path to embeddings; we used fastext trained on wikipedia dump 2019
+vectorspath = "/en_wiki_fasttext_300.txt" # path to embeddings; we used fastext trained on wikipedia dump 2019
 freeassocpath = "norms.txt"
 # path to a single file containing the The University of South Florida word association, rhyme, and word fragment norms
 # Nelson, D. L., McEvoy, C. L., & Schreiber, T. A. (1998). The University of South Florida word association, rhyme, and word fragment norms. http://w3.usf.edu/FreeAssociation/

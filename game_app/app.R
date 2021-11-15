@@ -80,7 +80,7 @@ if(!DEMO){
   generated_stims = vector("list", 1)
   generated_stims[[1]]$stims = c("niwa", "leho", "huwo", "soqa", "wusa", "paqu", "qolu")
   generated_stims[[1]]$words = c("trip", "tax", "zone", "dentist", "music", "grade", "abdomen", "area", "belly", "journey")
-  generated_stims[[1]]$pairs = data.frame(pair1=c("abdomen", "journey"), pair2=c("belly", "zone"), burnin=T, say=c("belly", "zone"), sent=NA, guess=NA, correct=NA, sendtime=NA, guesstime=NA, isbaseline=T, stimn=1 )
+  generated_stims[[1]]$pairs = data.frame(pair1=c("abdomen", "journey"), pair2=c("belly", "zone"), burnin=T, say=c("belly", "zone"), sent=NA, guess=NA, correct=NA, sendtime=NA, guesstime=NA, isbaseline=T, stimn=1, stringsAsFactors = F )
 }
 
 
