@@ -18,12 +18,12 @@ megadat = as_tibble(read.table("parsed_results_for_glmm.csv", header = T, quote=
 
 # Uncomment to load and parse from scratch instead
 # 
-# origdat = do_expmdat_fromfile("first", 0, "first_",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
-# repldat = rbind(do_expmdat_fromfile("repli", 1000, "repli_", c(44,11),edb=resultsfolder), do_expmdat_fromfile("repli2", 2000, "repli_", edb=resultsfolder))
-# weakdat = rbind(do_expmdat_fromfile("weakhyp", 3000, "weak_",edb=resultsfolder), do_expmdat_fromfile("weakhyp2", 4000, "weak_", bogus = c(5,24), edb=resultsfolder))
-# newdat = do_expmdat_fromfile("new", 5000, "new_",edb=resultsfolder)
-# megadat = rbind(origdat,repldat, weakdat, newdat)
-# length(table(megadat$dyad))
+origdat = do_expmdat_fromfile("first", 0, "first_",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
+#repldat = rbind(do_expmdat_fromfile("repli", 1000, "repli_", c(44,11),edb=resultsfolder), do_expmdat_fromfile("repli2", 2000, "repli_", edb=resultsfolder))
+#weakdat = rbind(do_expmdat_fromfile("weakhyp", 3000, "weak_",edb=resultsfolder), do_expmdat_fromfile("weakhyp2", 4000, "weak_", bogus = c(5,24), edb=resultsfolder))
+#newdat = do_expmdat_fromfile("new", 5000, "new_",edb=resultsfolder)
+#megadat = rbind(origdat,repldat, weakdat, newdat)
+#length(table(megadat$dyad))
 
 # - data collection took place over multiple months and required generating stimuli multiple times; the function above collects all the data from all the folders and makes sure IDs don't overlap.
 

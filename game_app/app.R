@@ -7,27 +7,26 @@
 #
 # This little piece of software is provided "as is", without warranty of any kind, express or implied. In no event shall the authors be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.
 #
-
 #### How to run this thing: ####
 #
 # To run this locally in demo mode: uncomment and run this line; 
 # to play against yourself, copy the (local) IP address to another tab/window,
 # the game will recognize this as two players being present and resumes:
 #
-# shiny::runApp("path/to/game_app/app.R", launch.browser = TRUE)  # uncomment, set path, run
+#shiny::runApp("/home/willilam/colexification_experiment/game_app/app.R", launch.browser = TRUE)  # uncomment, set path, run
 #
 # But make sure these are installed first, and check the parameters below too:
 library(shiny)
 library(shinyjs)
 library(shinyWidgets)
-# library(rdrop2)  # to save data (not required in demo mode)
+library(rdrop2)  # to save data (not required in demo mode)
 
 #### Switches ####
 #
-DROPDIR = "experimentdb"  # where to save and load from in Dropbox
+DROPDIR = "/Colexification"  # where to save and load from in Dropbox
 BREAKTIME = 1800          # ms, feedback length
-SHORT = F                 # to run with saving but just 2 rounds to debug
-DEMO = T                  # run in demo mode? (doesn't require dropbox auth)
+SHORT = T                 # to run with saving but just 2 rounds to debug
+DEMO = F                  # run in demo mode? (doesn't require dropbox auth)
 ####
 
 
@@ -52,7 +51,8 @@ fn <<- NULL
 collectnames <<- c("","")    # not used in mTurk
 SAVED=F    # hard switch to avoid multiple saves if somebody refreshes the page
 
-# droptoken <- rdrop2::drop_auth(); saveRDS(droptoken, file = "droptoken.rds") 
+#droptoken <- rdrop2::drop_auth()
+#saveRDS(droptoken, file = "droptoken.rds") 
 # commented out; run once to generate dropbox access token for rdrop2 to work
 # security risk: take care to not share/upload the droptoken!
 if(!DEMO){
@@ -180,13 +180,17 @@ global <- reactiveValues(
   wo = c(2,1),  # random word order rememberer for persistent GUI
   playerspresent=c(),
   consent=c(F,F),
-  consentscreen=T
+  consentscreen=F
 )
 
 
 # UI elements and styling
 ui <- fluidPage(
   useShinyjs(), # for delay
+  tags$head(
+    tags$script(
+      src=("buttonPress.js"),
+    )),
   tags$head(
     tags$style(HTML("
       body {
@@ -288,7 +292,7 @@ server <- function(input, output, session){
   
   # when word clicked, swap userIdToPlay
   observeEvent(eventExpr =  #input$send, 
-                 input$wordchoice,
+                 input$wordChoice,
                handlerExpr = {
                  if(length(input$wordchoice) > 0 ){
                    pairs2[global$ipair, "sendtime"] <<- Sys.time() # needs <<-
@@ -672,7 +676,6 @@ server <- function(input, output, session){
           )
           #        }
         } else {
-          
           # send message:
           if(local$userId == global$userIdToPlay && local$userId != global$userIdToGuess){
             #print(paste(pairs2[global$ipair, 1:2, drop=T], collapse=" " ) ) # debug
@@ -707,7 +710,15 @@ server <- function(input, output, session){
                              # randomize order? harder to play, but then cannot make pattern
                              # better: now the message placement is randomized instead
                              selected = character(0)
-                )
+                ),
+
+                # Javasript Code
+
+                # (tags$head(HTML("
+                # <script type='text/javascript'>
+
+              # /* to use */
+              # )))
                 # , actionButton(inputId="send", label="Send") # not needed anymore
                 
                 # h3(paste0('Communicate "',
