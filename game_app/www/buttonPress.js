@@ -1,42 +1,108 @@
-var start;
+var start = null;
 var wordChoice = null;
+var mouseUp = false;
+var progress = 0;
 
 document.addEventListener('mousedown',function(e){
-    
-    try{
-      console.log(e.target.parentNode.parentNode.classList.contains("radio"));
-    if(e.target && e.target.parentNode.parentNode.classList.contains("radio")){
-      console.log("ok")
-      e.target.addEventListener("mousedown", function(){
+  console.log("mouse down");
+  start = new Date();
+  try{
+    if(e.target && ((e.target.tagName = "LABEL" && e.target.parentNode.parentNode.childNodes.length == 15) || (e.target.tagName="SPAN" && e.target.parentNode.parentNode.parentNode.childNodes.length == 15)))  {
+      indicatorDiv = document.getElementById('indicator');
+      indicatorDiv.style.backgroundColor = "yellow";  
+      console.log(progress);
+      if (progress == 0) {
+        
+          progress = 1;
+          //var elem = document.getElementById("myBar");
+          var width = 1;
+          var wordLen = e.target.textContent.replace(/\s+/g, '').length;
+
+          var id = setInterval(frame, wordLen);
+          function frame() {
+            if (indicatorDiv.style.backgroundColor == "red") {
+              clearInterval(id);
+              progress = 0;
+            }
+            if (width >= 100) {
+              if (indicatorDiv.style.backgroundColor == "yellow") {
+                indicatorDiv.style.backgroundColor = "green";    
+              }
+              
+              clearInterval(id);
+              progress = 0;
+            } else {
+              width++;
+              indicatorDiv.style.width = width + "%";
+            }
+          }
+        }
+      if (indicatorDiv.style.backgroundColor == "red") {
+                indicatorDiv.style.backgroundColor = "black";  
+      }
+      
           start = new Date();
-      });
+          var wordLen = e.target.textContent.replace(/\s+/g, '').length;
+          
+          
+
     }
     }
     catch(TypeError) {
-      
+      console.log(TypeError)
     }
 })
 
+
+
 document.addEventListener('mouseup', function(e) {
           try {
-          if(e.target && e.target.parentNode.parentNode.classList.contains("radio")) {
-                        end = new Date();
-          delta = end - start;
-          console.log(e.target.textContent);
-          
+            console.debug("parent nodes")
+            console.debug(e.target && e.target.parentNode.childNodes);
+            console.debug(e.target && e.target.parentNode.parentNode.childNodes);
+          if(e.target && ((e.target.tagName != "LABEL" && e.target.tagName !="SPAN" ))) {
+            return 
+          }
+          else if(e.target && ((e.target.tagName = "LABEL" && e.target.parentNode.parentNode.childNodes.length == 15) || (e.target.tagName="SPAN" && e.target.parentNode.parentNode.parentNode.childNodes.length == 15)) && start != null ) {
+            
+            console.log("success mouseUp")
+          end = new Date();
+          /*console.log(e.target.textContent);*/
+          console.log(start)
+          console.log(end)
           var wordLen = e.target.textContent.replace(/\s+/g, '').length;
-          console.log(wordLen)
+          delta = (end.getTime() - start.getTime());
+          console.info("delta", delta);
+          
           if (delta >= wordLen*100) {
+              console.log("changed");
               wordChoice = e.target.textContent.replace(/\s+/g, '');
-              Shiny.setInputValue("wordChoice", wordChoice);
-              alert("transmitted");
+              // priority event - for observing event, even if value is not changed.
+              Shiny.setInputValue("signalChoice", wordChoice, {priority: "event"});
+              //alert("transmitted");
           }
           else {
-            alert("press longer");
+            indicatorDiv = document.getElementById('indicator');
+            console.log("too quick")
+            indicatorDiv.style.backgroundColor = "red";
           }
           }}
           catch(TypeError) {
-            
+            console.debug("oh dear")
+          }
+          finally {
+            try {
+            progress = 0;
+            indicatorDiv = document.getElementById('indicator');
+            indicatorDiv.style.width = "0%";
+            if (indicatorDiv.style.backgroundColor == "green") {
+              
+              indicatorDiv.style.backgroundColor = "black";
+            }
+            }
+            catch(TypeError) {
+              
+            }
           }
           })
 

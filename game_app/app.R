@@ -25,7 +25,7 @@ library(rdrop2)  # to save data (not required in demo mode)
 #
 DROPDIR = "/Colexification"  # where to save and load from in Dropbox
 BREAKTIME = 1800          # ms, feedback length
-SHORT = T                 # to run with saving but just 2 rounds to debug
+SHORT = F                 # to run with saving but just 2 rounds to debug
 DEMO = F                  # run in demo mode? (doesn't require dropbox auth)
 ####
 
@@ -51,8 +51,8 @@ fn <<- NULL
 collectnames <<- c("","")    # not used in mTurk
 SAVED=F    # hard switch to avoid multiple saves if somebody refreshes the page
 
-#droptoken <- rdrop2::drop_auth()
-#saveRDS(droptoken, file = "droptoken.rds") 
+droptoken <- rdrop2::drop_auth()
+saveRDS(droptoken, file = "droptoken.rds") 
 # commented out; run once to generate dropbox access token for rdrop2 to work
 # security risk: take care to not share/upload the droptoken!
 if(!DEMO){
@@ -292,16 +292,18 @@ server <- function(input, output, session){
   
   # when word clicked, swap userIdToPlay
   observeEvent(eventExpr =  #input$send, 
-                 input$wordChoice,
+                 input$signalChoice,
                handlerExpr = {
-                 if(length(input$wordchoice) > 0 ){
+                 if(length(input$signalChoice) > 0 ){
                    pairs2[global$ipair, "sendtime"] <<- Sys.time() # needs <<-
                    global$userIdToPlay =  3 - global$userIdToPlay  
                    # assumes two players
                    # ---this might be easy to break if 2+ windows open
                    # solution, display empty screen to any 3rd player/accidental login
                    # pairs2$sender[global$ipair] # depends on the "sender" column in stims
-                   global$word = input$wordchoice
+                   print(global$word)
+                   global$word = input$signalChoice
+                   print(global$word)
                  }
                }
   )
@@ -711,6 +713,14 @@ server <- function(input, output, session){
                              # better: now the message placement is randomized instead
                              selected = character(0)
                 ),
+                div(style="background-color: black;
+                    width: 100%;
+                    height: 100px;
+                    border:10px solid white",
+                    div(id="indicator", style="background-color: black;
+                    width: 100%;
+                    height: 100%;
+                    "))
 
                 # Javasript Code
 
