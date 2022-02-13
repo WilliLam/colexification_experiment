@@ -713,7 +713,7 @@ server <- function(input, output, session){
                                             "<span style='font-style: italic;'>",
                                             pairs2$say[global$ipair],
                                             "</span>",
-                                            " using..." 
+                                            " by holding down..." 
                                             )),
                              # replace with fixed
                              choices = lang,

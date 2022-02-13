@@ -55,7 +55,7 @@ document.addEventListener('mousedown',function(e){
 })
 
 function timeToHold(wordLen) {
-  return wordLen**1.5
+  return wordLen**1.6
 }
 document.addEventListener('mouseup', function(e) {
           try {
