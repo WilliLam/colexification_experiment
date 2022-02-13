@@ -20,12 +20,12 @@ library(shiny)
 library(shinyjs)
 library(shinyWidgets)
 library(rdrop2)  # to save data (not required in demo mode)
-
+library(httr)
 #### Switches ####
 #
 DROPDIR = "/Colexification"  # where to save and load from in Dropbox
 BREAKTIME = 1800          # ms, feedback length
-SHORT = F                 # to run with saving but just 2 rounds to debug
+SHORT = T                 # to run with saving but just 2 rounds to debug
 DEMO = F                  # run in demo mode? (doesn't require dropbox auth)
 ####
 
@@ -97,8 +97,11 @@ texts = list(
   To make it impossible for the Enemy to decode your correspondence, even you won't know 
   at the start how the secret code language works!<br>
   On each round, both of you will be shown two single-word messages on the screen, for example 'today' and 'tomorrow' (the order of those is random on each screen!).
-  If it's your turn to send a message, pick a code word from the list to represent the indicated message.
-  As the receiver, try to guess which of the two messages your partner had in mind.
+  <br>
+  If it's your turn to send a message, pick a code word from the list to represent the indicated message. Then, <b>hold down</b> the code until the bottom bar fills up and turns <span style=\"color:#90ee90\">green</span> to send!
+  Tip: The longer the message is, the longer it takes to fill up the bar.
+  <br>
+  As the receiver, try to guess which of the two messages your partner had in mind. You only need to <b>click</b> the message if you're the reciever.
   Every time you guess correctly, your team's score increases.
   Tip: when sending and guessing the coded messages, try to remember how you 
   and your partner used them in the previous rounds.
@@ -259,7 +262,9 @@ ui <- fluidPage(
 
 
 server <- function(input, output, session){
-  
+  clientData <- observe({
+    (reactiveValuesToList(session$clientData))
+  })
   # manages players and their roles
   local <- reactiveValues()
   observe({
@@ -480,6 +485,8 @@ server <- function(input, output, session){
     #  }
         # Sys.sleep(2)
         #shiny::stopApp()
+        
+        res <- POST("http://willilam.me/api/clearRoom", body = clientData$url_hostname, encode = "form")
         shinyjs::delay(7000, {shiny::stopApp()} ) # delay so last player can also see the thankyou message
     }
                  })
