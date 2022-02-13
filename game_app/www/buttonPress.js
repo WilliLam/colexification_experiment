@@ -2,7 +2,7 @@ var start = null;
 var wordChoice = null;
 var mouseUp = false;
 var progress = 0;
-
+var wordLen = null;
 document.addEventListener('mousedown',function(e){
   console.log("mouse down");
   start = new Date();
@@ -16,9 +16,9 @@ document.addEventListener('mousedown',function(e){
           progress = 1;
           //var elem = document.getElementById("myBar");
           var width = 1;
-          var wordLen = e.target.textContent.replace(/\s+/g, '').length;
-
-          var id = setInterval(frame, wordLen);
+          wordLen = e.target.textContent.replace(/\s+/g, '').length;
+          wordChoice = e.target.textContent.replace(/\s+/g, '');
+          var id = setInterval(frame, timeToHold(wordLen));
           function frame() {
             if (indicatorDiv.style.backgroundColor == "red") {
               clearInterval(id);
@@ -41,8 +41,9 @@ document.addEventListener('mousedown',function(e){
                 indicatorDiv.style.backgroundColor = "black";  
       }
       
-          start = new Date();
-          var wordLen = e.target.textContent.replace(/\s+/g, '').length;
+          //start = new Date();
+          //wordChoice = e.target.textContent.replace(/\s+/g, '');
+          //var wordLen = e.target.textContent.replace(/\s+/g, '').length;
           
           
 
@@ -53,37 +54,37 @@ document.addEventListener('mousedown',function(e){
     }
 })
 
-
-
+function timeToHold(wordLen) {
+  return wordLen**1.5
+}
 document.addEventListener('mouseup', function(e) {
           try {
             console.debug("parent nodes")
             console.debug(e.target && e.target.parentNode.childNodes);
             console.debug(e.target && e.target.parentNode.parentNode.childNodes);
-          if(e.target && ((e.target.tagName != "LABEL" && e.target.tagName !="SPAN" ))) {
-            return 
-          }
-          else if(e.target && ((e.target.tagName = "LABEL" && e.target.parentNode.parentNode.childNodes.length == 15) || (e.target.tagName="SPAN" && e.target.parentNode.parentNode.parentNode.childNodes.length == 15)) && start != null ) {
+
+          if(start != null ) {
             
             console.log("success mouseUp")
           end = new Date();
           /*console.log(e.target.textContent);*/
           console.log(start)
           console.log(end)
-          var wordLen = e.target.textContent.replace(/\s+/g, '').length;
+          //var wordLen = e.target.textContent.replace(/\s+/g, '').length;
           delta = (end.getTime() - start.getTime());
           console.info("delta", delta);
-          
-          if (delta >= wordLen*100) {
+          console.log(wordChoice)
+          console.log(timeToHold(wordLen)*100)
+          if (delta >= timeToHold(wordLen)*100 ) {
               console.log("changed");
-              wordChoice = e.target.textContent.replace(/\s+/g, '');
+              
               // priority event - for observing event, even if value is not changed.
               Shiny.setInputValue("signalChoice", wordChoice, {priority: "event"});
               //alert("transmitted");
           }
           else {
             indicatorDiv = document.getElementById('indicator');
-            console.log("too quick")
+            console.log("too quick/changed selection")
             indicatorDiv.style.backgroundColor = "red";
           }
           }}
@@ -98,6 +99,8 @@ document.addEventListener('mouseup', function(e) {
             if (indicatorDiv.style.backgroundColor == "green") {
               
               indicatorDiv.style.backgroundColor = "black";
+            } else{
+              indicatorDiv.style.backgroundColor = "red";
             }
             }
             catch(TypeError) {

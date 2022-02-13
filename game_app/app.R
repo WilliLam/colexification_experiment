@@ -25,7 +25,7 @@ library(httr)
 #
 DROPDIR = "/Colexification"  # where to save and load from in Dropbox
 BREAKTIME = 1800          # ms, feedback length
-SHORT = T                 # to run with saving but just 2 rounds to debug
+SHORT = F                 # to run with saving but just 2 rounds to debug
 DEMO = F                  # run in demo mode? (doesn't require dropbox auth)
 ####
 
@@ -51,8 +51,8 @@ fn <<- NULL
 collectnames <<- c("","")    # not used in mTurk
 SAVED=F    # hard switch to avoid multiple saves if somebody refreshes the page
 
-droptoken <- rdrop2::drop_auth()
-saveRDS(droptoken, file = "droptoken.rds") 
+# droptoken <- rdrop2::drop_auth()
+# saveRDS(droptoken, file = "droptoken.rds") 
 # commented out; run once to generate dropbox access token for rdrop2 to work
 # security risk: take care to not share/upload the droptoken!
 if(!DEMO){
@@ -434,6 +434,7 @@ server <- function(input, output, session){
       }
       rm(bookkeeping)
       #
+      
       pairs2 <<- generated_stims[[whichstim]]$pairs  # "pairs" is a graphics function, clashes
       lang  <<- generated_stims[[whichstim]]$stims
       vocab <<- generated_stims[[whichstim]]$words
@@ -486,7 +487,7 @@ server <- function(input, output, session){
         # Sys.sleep(2)
         #shiny::stopApp()
         
-        res <- POST("http://willilam.me/api/clearRoom", body = clientData$url_hostname, encode = "form")
+        # res <- POST("http://willilam.me/api/clearRoom", body = clientData$url_hostname, encode = "form")
         shinyjs::delay(7000, {shiny::stopApp()} ) # delay so last player can also see the thankyou message
     }
                  })

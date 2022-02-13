@@ -4,7 +4,7 @@
 
 
 SCRIPTPATH = "expgen_scripts.R" # full path to where the expgen_scripts.R file is
-DROPDIR    = "experimentdb"     # full path to where the stims should be saved
+DROPDIR    = "./experimentdb"     # full path to where the stims should be saved
 
 source(SCRIPTPATH)  # load required scripts
 library(text2vec)
@@ -699,7 +699,7 @@ for(i in seq_along(stims$words)){
 generated_stims = stimcombinator(stims, params)
 view(generated_stims)
 c(sapply(generated_stims, function(x) x$targets)) %>% table() %>% sort()
-
+# might need to run this manually after sourcing
 saveRDS(generated_stims, file=file.path(DROPDIR, "generated_stims.RDS"))
 
 
