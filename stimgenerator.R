@@ -4,7 +4,7 @@
 
 
 SCRIPTPATH = "expgen_scripts.R" # full path to where the expgen_scripts.R file is
-DROPDIR    = "./experimentdb"     # full path to where the stims should be saved
+DROPDIR    = "./"     # full path to where the stims should be saved
 
 source(SCRIPTPATH)  # load required scripts
 library(text2vec)
@@ -388,11 +388,15 @@ stimcombinator = function(stims, params, actualtargets=NULL){
       j=j+2
     }
     twords = unlist(strsplit(targs, "-"))
+    twordsoften = twords[c(TRUE, FALSE)]
+    twordsfew = twords[c(FALSE, TRUE)]
     com = combn(stims$words[[s]], 2)
     # this is a bit hacky but works:
     others = apply(com, 2, paste, collapse="-") # everything first
     others = setdiff(others, targs)
     halftargs = strsplit(others, "-") %>% sapply(., function(x) any(x %in% twords) ) %>% others[.]
+    halftargsoften = strsplit(others, "-") %>% sapply(., function(x) any(x %in% twordsoften) ) %>% others[.]
+    halftargsfew = strsplit(others, "-") %>% sapply(., function(x) any(x %in% twordsfew) ) %>% others[.]
     others = setdiff(others, halftargs)   # actual final others list now
     if(isbaseline[s]){
       pairs = c(rep(targs, each=pm["baseline"]), 
@@ -402,7 +406,9 @@ stimcombinator = function(stims, params, actualtargets=NULL){
     } else {
       pairs = c(rep(targs, each=pm["targets"]), 
                 rep(others, each=pm["distractors"] ), 
-                rep(halftargs, each=pm["halftargets"] ) 
+                rep(halftargsoften, each=pm["halfbigtargets"]),
+                rep(halftargsfew, each=pm["halfsmalltargets"])
+                # rep(halftargs, each=pm["halftargets"] ) 
       )
     }
     
@@ -563,7 +569,8 @@ params = list(
   #nrounds   = 114           , # number of rounds for each dyad
   pairmultiplier = c(targets=11,     # in each game in expm condition, how many pairs will be targets
                      distractors=5,  # ...distractor pairs (don't include target meanings)
-                     halftargets=2,  # ...pairs of mixed target+distractor (also targets from different pairs)
+                     halfbigtargets=2,
+                     halfsmalltargets=1,# ...pairs of mixed target+distractor (also targets from different pairs)
                      baseline=3      # multiplier for all pairs/uniform distribution in the baseline
                      ), 
   burnin    = 3   # first (1/burnin)*(n rounds) will be training period; will attempt to balance pairs
@@ -697,7 +704,8 @@ for(i in seq_along(stims$words)){
 # 
 
 generated_stims = stimcombinator(stims, params)
-view(generated_stims)
+# view causes errors as it tries to fit into a dataframe.
+# view(generated_stims)
 c(sapply(generated_stims, function(x) x$targets)) %>% table() %>% sort()
 # might need to run this manually after sourcing
 saveRDS(generated_stims, file=file.path(DROPDIR, "generated_stims.RDS"))
