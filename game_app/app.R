@@ -98,6 +98,7 @@ texts = list(
   at the start how the secret code language works!<br>
   On each round, both of you will be shown two single-word messages on the screen, for example 'today' and 'tomorrow' (the order of those is random on each screen!).
   <br>
+  <b>Instructions:</b>
   If it's your turn to send a message, pick a code word from the list to represent the indicated message. Then, <b>hold down</b> the code until the bottom bar fills up and turns <span style=\"color:#90ee90\">green</span> to send!
   Tip: The longer the message is, the longer it takes to fill up the bar.
   <br>

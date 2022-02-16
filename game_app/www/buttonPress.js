@@ -72,10 +72,11 @@ document.addEventListener('mouseup', function(e) {
           console.log(end)
           //var wordLen = e.target.textContent.replace(/\s+/g, '').length;
           delta = (end.getTime() - start.getTime());
+          var mouseUpChoice = e.target.textContent.replace(/\s+/g, '');
           console.info("delta", delta);
           console.log(wordChoice)
           console.log(timeToHold(wordLen)*100)
-          if (delta >= timeToHold(wordLen)*100 ) {
+          if (delta >= timeToHold(wordLen)*100 && mouseUpChoice == wordChoice ) {
               console.log("changed");
               
               // priority event - for observing event, even if value is not changed.
@@ -89,6 +90,7 @@ document.addEventListener('mouseup', function(e) {
           }
           }}
           catch(TypeError) {
+            console.log(TypeError)
             console.debug("oh dear")
           }
           finally {
