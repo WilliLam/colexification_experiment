@@ -11,6 +11,7 @@ document.addEventListener('mousedown',function(e){
   try{
     if(e.target && ((e.target.tagName = "LABEL" && e.target.parentNode.parentNode.childNodes.length == 15) || (e.target.tagName="SPAN" && e.target.parentNode.parentNode.parentNode.childNodes.length == 15)))  {
       indicatorDiv = document.getElementById('indicator');
+      indicatorDiv.style.width = "0%";
       indicatorDiv.style.backgroundColor = "yellow";  
       //console.log(progress);
       if (progress == 0) {
@@ -76,12 +77,19 @@ document.addEventListener('mouseup', function(e) {
               
               // priority event - for observing event, even if value is not changed.
               Shiny.setInputValue("signalChoice", wordChoice, {priority: "event"});
+              progress = 0;
+              start = null;
+              //indicatorDiv = document.getElementById('indicator');
+              //indicatorDiv.style.width = "0%";
+              //if (indicatorDiv.style.backgroundColor == "green") {
+              //  indicatorDiv.style.backgroundColor = "black";
+              }
           }
           else {
             indicatorDiv = document.getElementById('indicator');
             indicatorDiv.style.backgroundColor = "red";
           }
-          }}
+          }
           catch(TypeError) {
             //console.log(TypeError)
             //console.debug("oh dear")
@@ -91,10 +99,10 @@ document.addEventListener('mouseup', function(e) {
               progress = 0;
               start = null;
               indicatorDiv = document.getElementById('indicator');
-              indicatorDiv.style.width = "0%";
+              //indicatorDiv.style.width = "0%";
               if (indicatorDiv.style.backgroundColor == "green") {
                 indicatorDiv.style.backgroundColor = "black";
-              } else{
+              } else if (indicatorDiv.style.backgroundColor == "yellow"){
                 indicatorDiv.style.backgroundColor = "red";
               }
             }
