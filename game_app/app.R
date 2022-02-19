@@ -24,7 +24,7 @@ library(httr)
 #### Switches ####
 #
 DROPDIR = "/Colexification"  # where to save and load from in Dropbox
-BREAKTIME = 1800          # ms, feedback length
+BREAKTIME = 2000          # ms, feedback length
 SHORT = F                 # to run with saving but just 2 rounds to debug
 DEMO = F                  # run in demo mode? (doesn't require dropbox auth)
 ####

@@ -3,6 +3,8 @@ var wordChoice = null;
 var mouseUp = false;
 var progress = 0;
 var wordLen = null;
+
+//console.log("loading");
 document.addEventListener('mousedown',function(e){
   console.log("mouse down");
   start = new Date();
@@ -10,9 +12,8 @@ document.addEventListener('mousedown',function(e){
     if(e.target && ((e.target.tagName = "LABEL" && e.target.parentNode.parentNode.childNodes.length == 15) || (e.target.tagName="SPAN" && e.target.parentNode.parentNode.parentNode.childNodes.length == 15)))  {
       indicatorDiv = document.getElementById('indicator');
       indicatorDiv.style.backgroundColor = "yellow";  
-      console.log(progress);
+      //console.log(progress);
       if (progress == 0) {
-        
           progress = 1;
           //var elem = document.getElementById("myBar");
           var width = 1;
@@ -40,23 +41,17 @@ document.addEventListener('mousedown',function(e){
       if (indicatorDiv.style.backgroundColor == "red") {
                 indicatorDiv.style.backgroundColor = "black";  
       }
-      
-          //start = new Date();
-          //wordChoice = e.target.textContent.replace(/\s+/g, '');
-          //var wordLen = e.target.textContent.replace(/\s+/g, '').length;
-          
-          
-
     }
     }
     catch(TypeError) {
-      console.log(TypeError)
+      //console.log(TypeError)
     }
 })
 
 function timeToHold(wordLen) {
   return wordLen**1.6
 }
+
 document.addEventListener('mouseup', function(e) {
           try {
             console.debug("parent nodes")
@@ -64,12 +59,12 @@ document.addEventListener('mouseup', function(e) {
             console.debug(e.target && e.target.parentNode.parentNode.childNodes);
 
           if(start != null ) {
-            
-            console.log("success mouseUp")
+        
+            //console.log("success mouseUp")
           end = new Date();
           /*console.log(e.target.textContent);*/
-          console.log(start)
-          console.log(end)
+          //console.log(start)
+          //console.log(end)
           //var wordLen = e.target.textContent.replace(/\s+/g, '').length;
           delta = (end.getTime() - start.getTime());
           var mouseUpChoice = e.target.textContent.replace(/\s+/g, '');
@@ -81,29 +76,27 @@ document.addEventListener('mouseup', function(e) {
               
               // priority event - for observing event, even if value is not changed.
               Shiny.setInputValue("signalChoice", wordChoice, {priority: "event"});
-              //alert("transmitted");
           }
           else {
             indicatorDiv = document.getElementById('indicator');
-            console.log("too quick/changed selection")
             indicatorDiv.style.backgroundColor = "red";
           }
           }}
           catch(TypeError) {
-            console.log(TypeError)
-            console.debug("oh dear")
+            //console.log(TypeError)
+            //console.debug("oh dear")
           }
           finally {
             try {
-            progress = 0;
-            indicatorDiv = document.getElementById('indicator');
-            indicatorDiv.style.width = "0%";
-            if (indicatorDiv.style.backgroundColor == "green") {
-              
-              indicatorDiv.style.backgroundColor = "black";
-            } else{
-              indicatorDiv.style.backgroundColor = "red";
-            }
+              progress = 0;
+              start = null;
+              indicatorDiv = document.getElementById('indicator');
+              indicatorDiv.style.width = "0%";
+              if (indicatorDiv.style.backgroundColor == "green") {
+                indicatorDiv.style.backgroundColor = "black";
+              } else{
+                indicatorDiv.style.backgroundColor = "red";
+              }
             }
             catch(TypeError) {
               
