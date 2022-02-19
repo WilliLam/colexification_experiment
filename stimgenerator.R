@@ -395,21 +395,45 @@ stimcombinator = function(stims, params, actualtargets=NULL){
     others = apply(com, 2, paste, collapse="-") # everything first
     others = setdiff(others, targs)
     halftargs = strsplit(others, "-") %>% sapply(., function(x) any(x %in% twords) ) %>% others[.]
-    halftargsoften = strsplit(others, "-") %>% sapply(., function(x) any(x %in% twordsoften) ) %>% others[.]
     halftargsfew = strsplit(others, "-") %>% sapply(., function(x) any(x %in% twordsfew) ) %>% others[.]
-    others = setdiff(others, halftargs)   # actual final others list now
-    if(isbaseline[s]){
-      pairs = c(rep(targs, each=pm["baseline"]), 
-                rep(others, each=pm["baseline"] ), 
-                rep(halftargs, each=pm["baseline"] ) 
-      )
+    others = setdiff(others, halftargsfew)
+    halftargsoften = strsplit(others, "-") %>% sapply(., function(x) any(x %in% twordsoften) ) %>% others[.]
+    others = setdiff(others, halftargsoften)
+    others2 = setdiff(others, halftargs)   # actual final others list now
+    isOriginal = FALSE
+    if(isOriginal) {
+      if(isbaseline[s]){
+        pairs = c(rep(targs, each=pm["baseline"]), 
+                  rep(others, each=pm["baseline"] ), 
+                  rep(halftargs, each=pm["baseline"] ) 
+        )
+      } else {
+        pairs = c(rep(targs, each=pm["targets"]), 
+                  rep(others, each=pm["distractors"] ), 
+                  rep(halftargsoften, each=pm["halfbigtargets"]),
+                  rep(halftargsfew, each=pm["halfsmalltargets"])
+                  # rep(halftargs, each=pm["halftargets"] ) 
+        )
+      }
+      
+      # same freq as baseline, 
     } else {
-      pairs = c(rep(targs, each=pm["targets"]), 
-                rep(others, each=pm["distractors"] ), 
-                rep(halftargsoften, each=pm["halfbigtargets"]),
-                rep(halftargsfew, each=pm["halfsmalltargets"])
-                # rep(halftargs, each=pm["halftargets"] ) 
-      )
+      if(isbaseline[s]){
+        pairs = c(rep(targs, each=pm["targetsCond"]), 
+                  rep(others, each=pm["distractorsCond"] ), 
+                  rep(halftargsoften, each=pm["halfbigtargetsCond"]),
+                  rep(halftargsfew, each=pm["halfsmalltargetsCond"])
+        )
+      } else {
+        pairs = c(rep(targs, each=pm["targets"]), 
+                  rep(others, each=pm["distractors"] ), 
+                  rep(halftargsoften, each=pm["halfbigtargets"]),
+                  rep(halftargsfew, each=pm["halfsmalltargets"])
+                  # rep(halftargs, each=pm["halftargets"] ) 
+        )
+      }
+      
+      
     }
     
     pairs2 = as.data.frame(cbind( sapply(strsplit(pairs, "-"), `[[`, 1),
@@ -568,10 +592,16 @@ params = list(
   #
   #nrounds   = 114           , # number of rounds for each dyad
   pairmultiplier = c(targets=11,     # in each game in expm condition, how many pairs will be targets
-                     distractors=5,  # ...distractor pairs (don't include target meanings)
-                     halfbigtargets=2,
-                     halfsmalltargets=1,# ...pairs of mixed target+distractor (also targets from different pairs)
-                     baseline=3      # multiplier for all pairs/uniform distribution in the baseline
+                     distractors=5, # ...distractor pairs (don't include target meanings)
+                     halftargets = 3, # ...pairs of mixed target+distractor (also targets from different pairs)
+                     halfbigtargets=3, #for first similar
+                     halfsmalltargets=1, #for second similar
+                     baseline=3, # multiplier for all pairs/uniform distribution in the baseline
+                     targetsCond = 4,
+                     distractorsCond = 4,
+                     halfbigtargetsCond = 4,
+                     halfsmalltargetsCond=1
+                
                      ), 
   burnin    = 3   # first (1/burnin)*(n rounds) will be training period; will attempt to balance pairs
 ) 
