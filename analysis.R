@@ -18,7 +18,7 @@ megadat = as_tibble(read.table("parsed_results_for_glmm.csv", header = T, quote=
 
 # Uncomment to load and parse from scratch instead
 # 
-origdat = do_expmdat_fromfile("first", 0, "first_",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
+origdat = do_expmdat_fromfile("william", 0, "first_",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
 #repldat = rbind(do_expmdat_fromfile("repli", 1000, "repli_", c(44,11),edb=resultsfolder), do_expmdat_fromfile("repli2", 2000, "repli_", edb=resultsfolder))
 #weakdat = rbind(do_expmdat_fromfile("weakhyp", 3000, "weak_",edb=resultsfolder), do_expmdat_fromfile("weakhyp2", 4000, "weak_", bogus = c(5,24), edb=resultsfolder))
 #newdat = do_expmdat_fromfile("new", 5000, "new_",edb=resultsfolder)
@@ -26,6 +26,70 @@ origdat = do_expmdat_fromfile("first", 0, "first_",bogus = c(15), accthreshold =
 #length(table(megadat$dyad))
 
 # - data collection took place over multiple months and required generating stimuli multiple times; the function above collects all the data from all the folders and makes sure IDs don't overlap.
+
+#### Custom experiment and plot ####
+
+origmodel = glmer(colextarget ~ condition*row2   +
+                    (1  + condition | meaning) + 
+                    (1  | dyad/sender ), 
+                  data=origdat,  
+                  family="binomial",
+                  control=glmerControl(optimizer="bobyqa",optCtrl=list(maxfun=100000)))
+summary(origmodel) 
+
+
+
+
+# ...at the end of a game, the pooled probability estimate of that is only
+c(predict(origmodel,newdata=data.frame(condition="first_target", row2=1), re.form=NA, type="response"),
+  predict(origmodel,newdata=data.frame(condition="first_baseline", row2=1), re.form=NA, type="response")) %>% round(2)
+
+# This procedure, repeated for all players across all 41 games, yields a dataset of...
+nrow(origdat)
+# median of .. per dyad
+origdat %>% group_by(dyad) %>% summarise(n=n()) %>% pull(n) %>% median
+
+
+# the intercept value of  therefore stands for the log odds of target meanings being colexified in the baseline condition, mid-game (i.e. a
+summary(origmodel)$coefficients[1,1] %>% plogis() %>% round(2)
+
+#  indicating participants were less likely to colexify related meanings in the target condition (by the end of a game, the pooled probability estimate of that is only  
+predict(origmodel,newdata=data.frame(condition="first_target", row2=1), re.form=NA, type="response") %>% round(2)
+# compared to 
+predict(origmodel,newdata=data.frame(condition="first_baseline", row2=1), re.form=NA, type="response")%>% round(2)
+# in the baseline condition)
+
+
+ggplot(origdat %>% group_by(dyad) %>%  mutate(row2 = 1:n()) %>% transform(condition = c("Baseline condition (each row represents a dyad)", "Target condition")[as.numeric(condition)]) , aes(y=dyad,x=row2,fill=colextarget, color=colextarget )) + 
+  geom_tile( width=0.6, height=0.7, linejoin="round", size=1.1) +
+  facet_wrap(~condition, scales="free_y" ) +
+  scale_fill_manual(values= brewer_pal()(9)[c(3,6)], name="Target\nmeanings\ncolexified?") +
+  scale_color_manual(values=brewer_pal()(9)[c(3,6)], name="Target\nmeanings\ncolexified?") +
+  theme_minimal()+
+  annotate("text", x = 3, y = -0.2, label = "Total:", size=10/.pt) +
+  coord_cartesian(ylim=c(1,NA), clip = "off") +
+  scale_x_continuous( expand = c(0.01,0.01), breaks=seq(10,50,10)) +
+  xlab("Total:") +
+  theme(legend.position = "right",
+        legend.justification=c(1, 1), 
+        legend.margin = margin(0,0,0,1),
+        strip.background = element_blank(),
+        strip.text = element_text(size=13,hjust=0),
+        plot.margin = unit(c(0,0,0,1),"mm"),
+        panel.background = element_rect(fill="white", color=NA),
+        panel.grid.minor = element_blank(),  # color="gray12"
+        panel.grid.major = element_blank(),
+        #panel.border = element_blank(),
+        #axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.title = element_blank(),
+        #axis.title.x=element_text(hjust=0, vjust=7, size=11),
+        #panel.border = element_rect(color="darkgray",fill=NA, size=0.2),
+        panel.spacing = unit(1, "lines")
+  )  +
+  NULL
+
+
 
 
 #### experiment 1 model and plot ####

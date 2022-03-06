@@ -7,7 +7,7 @@ pairs = data.frame(firstTrial[5])
 
 
 
-x <- data.frame(pairs["pairs.pair1"], pairs["pairs.pair2"])
+x <- data.frame(pairs["pairs.pair1"], pairs["pairs.pair2"], pairs["pairs.say"])
 stims <- firstTrial["stims"]
 words <- firstTrial["words"]
 

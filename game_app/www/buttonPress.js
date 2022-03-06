@@ -50,7 +50,13 @@ document.addEventListener('mousedown',function(e){
 })
 
 function timeToHold(wordLen) {
-  return wordLen**1.6
+  //5x for greater effect
+  if (wordLen < 5) {
+    return 10;
+  } else {
+    return 50;
+  }
+  //return wordLen**1.6
 }
 
 document.addEventListener('mouseup', function(e) {
