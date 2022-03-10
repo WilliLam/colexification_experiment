@@ -14,11 +14,72 @@ megadat = as_tibble(read.table("parsed_results_for_glmm.csv", header = T, quote=
 
 
 
+# current one, calls do_expmdat_binary4
+do_expmdat_fromfile = function(
+  subfolder = "",
+  dyadsuffix = NA,
+  condprefix = "",
+  bogus = c(),
+  accthreshold = 0.59,
+  edb=resultsfolder, 
+  doentropy=F, doinfandcompl=F
+){
+  path = file.path(edb, subfolder)
+  generated_stims = readRDS(file.path(path,"generated_stims.RDS"))
+  
+  f = list.files(path, full.names = F, pattern="2020")
+  f = f[order(sapply(f, function(x) as.numeric(gsub("^([0-9]{1,3}).*","\\1",x) )))]
+  res = lapply(f, function(x) readRDS(file.path(path,x)) )
+  res =  res[!(sapply(res, function(x) x$stimn[1]) %in% bogus) ]   # filter out obvious cheaters etc
+  
+  # quick report:
+  accs = sapply(res, function(x) sum(x$correct[!x$burnin])/sum(!x$burnin) )
+  ok = which(accs>=accthreshold)
+  print(paste0("bogus: ", length(bogus), " ok: ", length(accs), " but accurate enough: ", length(ok)))
+  
+  # warning and fix if game engine messed up stim numbers (at least once)
+  if(any(duplicated(sapply(res, function(x) x$stimn[1])))){
+    isdup = which(duplicated(sapply(res, function(x) x$stimn[1]), fromLast = T))
+    for(d in isdup){
+      res[[d]]$stimn = res[[d]]$stimn+300
+    }
+    warning(paste("Duplicated stim IDs found, adding big number (500) to id to avoid confusing dyads (shouldn't interfere with dyad suffixes which are 1000+)"))
+  }
+  which(duplicated(sapply(res, function(x) x$stimn[1]), fromLast = T))
+  
+  if(!doentropy){ # normal
+    
+    dat5 = do_expmdat_binary4(res,generated_stims, accthreshold=accthreshold, 
+                              alsoburnin=F, dyadsuffix=dyadsuffix, doinfandcompl=doinfandcompl)
+    levels(dat5$condition) = paste0(condprefix, levels(dat5$condition))
+    dat5 %>% count(condition, dyad) %>% count(condition) %>% as.data.frame() %>% print()
+    
+    
+    return(dat5)
+    
+  } else { # entropy one instead
+    res = res[sapply(res, function(x) sum(x[!x$burnin,"correct"], na.rm = T)/nrow(x[!x$burnin,]) )>=accthreshold ]
+    y = lapply(res, function(x) data.frame(condition = 
+                                             paste0(condprefix, ifelse(x$isbaseline[1], "baseline","target") ), 
+                                           entropy = entropy(table(x[!x$burnin,"sent"])),
+                                           dyad = x$stimn[1] + dyadsuffix,
+                                           acc = sum(x[!x$burnin,"correct"], na.rm = T)/nrow(x[!x$burnin,])
+    ) 
+    ) %>% do.call(rbind, .)
+    y$condition = as.factor(y$condition)
+    return(y)
+  }
+}
+
+
+
+
+
 #### Data parser ####
 
 # Uncomment to load and parse from scratch instead
 # 
-origdat = do_expmdat_fromfile("william", 0, "first_",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
+origdat = do_expmdat_fromfile("first", 0, "first_",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
 #repldat = rbind(do_expmdat_fromfile("repli", 1000, "repli_", c(44,11),edb=resultsfolder), do_expmdat_fromfile("repli2", 2000, "repli_", edb=resultsfolder))
 #weakdat = rbind(do_expmdat_fromfile("weakhyp", 3000, "weak_",edb=resultsfolder), do_expmdat_fromfile("weakhyp2", 4000, "weak_", bogus = c(5,24), edb=resultsfolder))
 #newdat = do_expmdat_fromfile("new", 5000, "new_",edb=resultsfolder)

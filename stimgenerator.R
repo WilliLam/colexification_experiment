@@ -400,7 +400,7 @@ stimcombinator = function(stims, params, actualtargets=NULL){
     halftargsoften = strsplit(others, "-") %>% sapply(., function(x) any(x %in% twordsoften) ) %>% others[.]
     others = setdiff(others, halftargsoften)
     others2 = setdiff(others, halftargs)   # actual final others list now
-    isOriginal = FALSE
+    isOriginal = TRUE
     if(isOriginal) {
       if(isbaseline[s]){
         pairs = c(rep(targs, each=pm["baseline"]), 
@@ -410,9 +410,7 @@ stimcombinator = function(stims, params, actualtargets=NULL){
       } else {
         pairs = c(rep(targs, each=pm["targets"]), 
                   rep(others, each=pm["distractors"] ), 
-                  rep(halftargsoften, each=pm["halfbigtargets"]),
-                  rep(halftargsfew, each=pm["halfsmalltargets"])
-                  # rep(halftargs, each=pm["halftargets"] ) 
+                  rep(halftargs, each=pm["halftargets"] ) 
         )
       }
       
@@ -594,9 +592,9 @@ params = list(
   pairmultiplier = c(targets=11,     # in each game in expm condition, how many pairs will be targets
                      distractors=5, # ...distractor pairs (don't include target meanings)
                      halftargets = 3, # ...pairs of mixed target+distractor (also targets from different pairs)
+                     baseline=3, # multiplier for all pairs/uniform distribution in the baseline
                      halfbigtargets=3, #for first similar
                      halfsmalltargets=1, #for second similar
-                     baseline=3, # multiplier for all pairs/uniform distribution in the baseline
                      targetsCond = 4,
                      distractorsCond = 4,
                      halfbigtargetsCond = 4,

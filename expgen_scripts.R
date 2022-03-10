@@ -172,9 +172,9 @@ do_expmdat_binary4 = function(res,generated_stims, accthreshold, alsoburnin=F, d
     burnin = which(res[[i]]$burnin)
     x = res[[i]] %>%
       mutate(rown=1:nrow(.))   # proper trial numbers (can be rescaled later)
-    
-    meanings = generated_stims[[ res[[i]]$stimn[1] ]]$words
-    stimtargets = generated_stims[[ res[[i]]$stimn[1] ]]$targets
+    # have to +1 for .csv because 0-indexing
+    meanings = generated_stims[[ res[[i]]$stimn[1]+1 ]]$words
+    stimtargets = generated_stims[[ res[[i]]$stimn[1]+1 ]]$targets
     # -> need to check against stim set directly not tarx2, as weakhyp uses target words in distractors
     
     if(doinfandcompl){ # additional structures if doing this
@@ -350,8 +350,14 @@ do_expmdat_binary4 = function(res,generated_stims, accthreshold, alsoburnin=F, d
   # res[[9]] %>%  filter(say %in% c("coast", "shore"))
 }
 
-# current one, calls do_expmdat_binary4
-do_expmdat_fromfile = function(
+
+
+
+
+
+
+
+do_expmdat_fromfile_modified = function(
   subfolder = "",
   dyadsuffix = NA,
   condprefix = "",
@@ -363,7 +369,7 @@ do_expmdat_fromfile = function(
   path = file.path(edb, subfolder)
   generated_stims = readRDS(file.path(path,"generated_stims.RDS"))
   
-  f = list.files(path, full.names = F, pattern="2020")
+  f = list.files(path, full.names = F, pattern="2022")
   f = f[order(sapply(f, function(x) as.numeric(gsub("^([0-9]{1,3}).*","\\1",x) )))]
   res = lapply(f, function(x) readRDS(file.path(path,x)) )
   res =  res[!(sapply(res, function(x) x$stimn[1]) %in% bogus) ]   # filter out obvious cheaters etc
@@ -400,12 +406,13 @@ do_expmdat_fromfile = function(
                                            entropy = entropy(table(x[!x$burnin,"sent"])),
                                            dyad = x$stimn[1] + dyadsuffix,
                                            acc = sum(x[!x$burnin,"correct"], na.rm = T)/nrow(x[!x$burnin,])
-                                           ) 
+    ) 
     ) %>% do.call(rbind, .)
     y$condition = as.factor(y$condition)
     return(y)
   }
 }
+
 
 
 range01 <- function(x,mn,mx){(x-mn)/(mx-mn)}
