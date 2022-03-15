@@ -400,7 +400,7 @@ stimcombinator = function(stims, params, actualtargets=NULL){
     halftargsoften = strsplit(others, "-") %>% sapply(., function(x) any(x %in% twordsoften) ) %>% others[.]
     others = setdiff(others, halftargsoften)
     others2 = setdiff(others, halftargs)   # actual final others list now
-    isOriginal = TRUE
+    isOriginal = FALSE
     if(isOriginal) {
       if(isbaseline[s]){
         pairs = c(rep(targs, each=pm["baseline"]), 
@@ -417,18 +417,22 @@ stimcombinator = function(stims, params, actualtargets=NULL){
       # same freq as baseline, 
     } else {
       if(isbaseline[s]){
+        pairs = c(rep(targs, each=pm["baseline"]), 
+                  rep(others, each=pm["baseline"] ), 
+                  rep(halftargs, each=pm["baseline"] ) 
+        )
+      } else {
         pairs = c(rep(targs, each=pm["targetsCond"]), 
                   rep(others, each=pm["distractorsCond"] ), 
                   rep(halftargsoften, each=pm["halfbigtargetsCond"]),
                   rep(halftargsfew, each=pm["halfsmalltargetsCond"])
         )
-      } else {
-        pairs = c(rep(targs, each=pm["targets"]), 
-                  rep(others, each=pm["distractors"] ), 
-                  rep(halftargsoften, each=pm["halfbigtargets"]),
-                  rep(halftargsfew, each=pm["halfsmalltargets"])
-                  # rep(halftargs, each=pm["halftargets"] ) 
-        )
+        # pairs = c(rep(targs, each=pm["targets"]), 
+        #           rep(others, each=pm["distractors"] ), 
+        #           rep(halftargsoften, each=pm["halfbigtargets"]),
+        #           rep(halftargsfew, each=pm["halfsmalltargets"])
+        #           # rep(halftargs, each=pm["halftargets"] ) 
+        # )
       }
       
       
@@ -446,7 +450,7 @@ stimcombinator = function(stims, params, actualtargets=NULL){
     # next block: try to also balance the distribution of prompts, what they're told to say
     #
     nx = 0; sdx=Inf
-    while(sdx>1){  # not this might need adjusting if different sample size, will not try forever:
+    while(sdx>3){  # not this might need adjusting if different sample size, will not try forever:
       if(nx>100){stop("balancing prompt distribution has failed 100x times, fix something")}
       # randomize order while preserving balance in and out of burnin, and burnin first
       pairs2 = rbind(
@@ -462,9 +466,15 @@ stimcombinator = function(stims, params, actualtargets=NULL){
       for(i in which(!pairs2$burnin)){
         px = unlist(pairs2[i, 1:2],use.names = F,recursive = F)
         px = px[order(t2[px], decreasing = F)]
+        # we just sample here because we don't want the same frequency
         x = which( t2[px] <= t1 )[1] %>% names()
+        # x = NA
         x = ifelse(is.na(x), sample(px,1), x) # shouldn't be needed but failsafe
         pairs2$say[i] = x
+        # freqMultiplier = 1
+        # if (x %in% twordsfew) {
+        #   freqMultiplier = 3
+        # }
         t2[x] = t2[x]+1
       }
       sdx = table(pairs2$say[!pairs2$burnin]) %>% sd
@@ -593,12 +603,18 @@ params = list(
                      distractors=5, # ...distractor pairs (don't include target meanings)
                      halftargets = 3, # ...pairs of mixed target+distractor (also targets from different pairs)
                      baseline=3, # multiplier for all pairs/uniform distribution in the baseline
+                     
+                     
                      halfbigtargets=3, #for first similar
                      halfsmalltargets=1, #for second similar
-                     targetsCond = 4,
-                     distractorsCond = 4,
-                     halfbigtargetsCond = 4,
-                     halfsmalltargetsCond=1
+                     
+                     # for baseline of not original
+                     targetsCond = 5,
+                     distractorsCond = 5,
+                     halfbigtargetsCond = 5,
+                     halfsmalltargetsCond=2
+                     
+                     
                 
                      ), 
   burnin    = 3   # first (1/burnin)*(n rounds) will be training period; will attempt to balance pairs
