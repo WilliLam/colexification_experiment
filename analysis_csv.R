@@ -12,7 +12,9 @@ library(dplyr)
 # View(trajectory_1_0_97_0_05)
 # Set these first:
 source("expgen_scripts.R") # full path to the scripts file
-resultsfolder = "RESULTS"  # full path to this unpacked folder, which contains the folders of RData files with the raw data (only needed if parsing from raw data), if not:
+
+# as we're using results from simulations, better to put there.
+resultsfolder = "/home/willilam/colexification webppl simulations/simulations/resultsP3/"  # full path to this unpacked folder, which contains the folders of RData files with the raw data (only needed if parsing from raw data), if not:
 megadat = as_tibble(read.table("parsed_results_for_glmm.csv", header = T, quote=""))  # if not parsing from raw, set full path to this file, it has all the data
 
 do_expmdat_binary4_csv = function(res,generated_stims, accthreshold, alsoburnin=F, dyadsuffix=NA, doinfandcompl=F){
@@ -48,8 +50,9 @@ do_expmdat_binary4_csv = function(res,generated_stims, accthreshold, alsoburnin=
   
   
   dat = vector("list", length(res))
-  accs = sapply(res, function(x) sum(x$correct[!x$burnin])/sum(!x$burnin) )
+  accs = sapply(res, function(x) 1 )
   ok = which(accs>=accthreshold)
+  
   for(i in ok){
     burnin = which(res[[i]]$burnin)
     x = res[[i]] %>%
@@ -57,8 +60,8 @@ do_expmdat_binary4_csv = function(res,generated_stims, accthreshold, alsoburnin=
       # mutate(rown=1:nrow(.))   # proper trial numbers (can be rescaled later)
     # TODO have to +1 for .csv because 0-indexing
     # CHANGED TO +2 BECAUSE BASELINE IS +2
-    meanings = generated_stims[[ res[[i]]$stimn[1]+1 ]]$words
-    stimtargets = generated_stims[[ res[[i]]$stimn[1]+1 ]]$targets
+    meanings = generated_stims[[ res[[i]]$stimn[1]+2 ]]$words
+    stimtargets = generated_stims[[ res[[i]]$stimn[1]+2 ]]$targets
     # -> need to check against stim set directly not tarx2, as weakhyp uses target words in distractors
     
     if(doinfandcompl){ # additional structures if doing this
@@ -145,7 +148,7 @@ do_expmdat_binary4_csv = function(res,generated_stims, accthreshold, alsoburnin=
       } else {
         df2$isburnin = df2$row %in% burnin
       }
-      df2$condition = ifelse(x$isbaseline[1],"baseline", "target")
+      df2$condition = ifelse(x$isbaseline[1]==1,"baseline", "target")
       df2$dyad = x$stimn[1]
       df2$sender = paste0(df2$dyad, "_",df2$sender)
       df2$acc = accs[i]
@@ -200,19 +203,37 @@ do_expmdat_fromfile_csv = function(
   path = file.path(edb, subfolder)
   generated_stims = readRDS(file.path(path,"generated_stims.RDS"))
   
-  f = list.files(path, full.names = F, pattern="*.csv")
+  f = list.files(path, full.names = F, pattern="trajectory.*csv")
   f = f[order(sapply(f, function(x) as.numeric(gsub("^([0-9]{1,3}).*","\\1",x) )))]
+  
+  # we take each res into 
   res = lapply(f, function(x) data.frame(read_csv(file.path(path,x))) )
+  lastDyad = 0
+  for(i in 1:(length(res))) {
+    file = res[[i]]
+    if(lastDyad == 0) {
+      lastDyad = max(file$iterationNum)
+    }
+    else {
+      res[[i]]$iterationNum = unlist(lapply(file$iterationNum, function(x) x+1+ lastDyad))
+      lastDyad = max(res[[i]]$iterationNum)
+      res[[1]] = rbind(res[[1]], res[[i]])
+    }
+  
+  }
+  
+  
   res[[1]] <- res[[1]] %>% rename(pair1 = word1, pair2 = word2, stimn= iterationNum,sender=speakerID, say =intendedName, sent=topSpeakerChoice, guess=topListenerChoice)
   res[[1]] <- res[[1]]  %>%
     mutate(burnin = case_when(
       time > 40 ~ FALSE,
       time <= 40 ~ TRUE
     ))
+  res[[2]] = NULL
   res =  res[!(sapply(res, function(x) x$stimn[1]) %in% bogus) ]   # filter out obvious cheaters etc
   
   # quick report:
-  accs = sapply(res, function(x) sum(x$correct[!x$burnin])/sum(!x$burnin) )
+  accs = sapply(res, function(x) 1 )
   ok = which(accs>=accthreshold)
   print(paste0("bogus: ", length(bogus), " ok: ", length(accs), " but accurate enough: ", length(ok)))
   
@@ -258,8 +279,9 @@ do_expmdat_fromfile_csv = function(
 
 # Uncomment to load and parse from scratch instead
 # 
-origdat_baselinenoutt = do_expmdat_fromfile_csv("csv/Newtarget/nouttcost", 0, "0nouttcost_",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
-origdat_baselineutt = do_expmdat_fromfile_csv("csv/Newtarget/uttcost", 0, "1uttcost_",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
+origdat_baselinenoutt = do_expmdat_fromfile_csv("ModifiedRealFreqTarget/lowAlphas/nouttcost", 0, "0lowuttweight",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
+origdat_baselineutt = do_expmdat_fromfile_csv("ModifiedRealFreqTarget/lowAlphas/uttcost", 0, "1highuttweight",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
+
 origdat = rbind(origdat_baselinenoutt, origdat_baselineutt)
 
 #repldat = rbind(do_expmdat_fromfile("repli", 1000, "repli_", c(44,11),edb=resultsfolder), do_expmdat_fromfile("repli2", 2000, "repli_", edb=resultsfolder))
@@ -305,8 +327,8 @@ ZScore = calculateZScore(origdat_baselinenoutt, origdat_baselineutt)
 
 # doesn't matterthat this odesn't work
 # ...at the end of a game, the pooled probability estimate of that is only
-c(predict(origmodel,newdata=data.frame(condition="first_target", row2=1), re.form=NA, type="response"),
-  predict(origmodel,newdata=data.frame(condition="first_baseline", row2=1), re.form=NA, type="response")) %>% round(2)
+c(predict(origmodel,newdata=data.frame(condition="0lowuttweighttarget", row2=0.5), re.form=NA, type="response"),
+  predict(origmodel,newdata=data.frame(condition="1highuttweighttarget", row2=0.5), re.form=NA, type="response")) %>% round(2)
 
 # This procedure, repeated for all players across all 41 games, yields a dataset of...
 nrow(origdat)

@@ -28,3 +28,18 @@ words <- secondTrial["words"]
 write.csv(stims, file="~/R colex participant experiment/stims_second.csv")
 write.csv(words, file="~/R colex participant experiment/words_second.csv")
 write.csv(x, file="~/R colex participant experiment/pairs_second.csv")
+
+thirdTrial <- generated_stims[[3]]
+
+pairs = data.frame(thirdTrial[5])
+
+
+
+x <- data.frame(pairs["pairs.pair1"], pairs["pairs.pair2"], pairs["pairs.say"])
+stims <- thirdTrial["stims"]
+words <- thirdTrial["words"]
+
+write.csv(stims, file="~/R colex participant experiment/stims_3.csv")
+write.csv(words, file="~/R colex participant experiment/words_3.csv")
+write.csv(x, file="~/R colex participant experiment/pairs_3.csv")
+

@@ -430,10 +430,10 @@ stimcombinator = function(stims, params, actualtargets=NULL){
         )
       }
         else if (isbaseline[s] == 3) {
-          pairs = c(rep(targs, each=pm["targetsCond"]), 
-                    rep(others, each=pm["distractorsCond"] ), 
-                    rep(halftargsoften, each=pm["halfbigtargetsCond"]),
-                    rep(halftargsfew, each=pm["halfsmalltargetsCond"])
+          pairs = c(rep(targs, each=pm["targetsCondC"]), 
+                    rep(others, each=pm["distractorsCondC"] ), 
+                    rep(halftargsoften, each=pm["halfbigtargetsCondC"]),
+                    rep(halftargsfew, each=pm["halfsmalltargetsCondC"])
           )
         # pairs = c(rep(targs, each=pm["targets"]), 
         #           rep(others, each=pm["distractors"] ), 
@@ -620,9 +620,13 @@ params = list(
                      targetsCond = 5,
                      distractorsCond = 5,
                      halfbigtargetsCond = 5,
-                     halfsmalltargetsCond=2
+                     halfsmalltargetsCond=2,
                      
-                     
+                     # for condition c
+                     targetsCondC = 10,
+                     distractorsCondC = 5,
+                     halfbigtargetsCondC = 5,
+                     halfsmalltargetsCondC =1
                 
                      ), 
   burnin    = 3   # first (1/burnin)*(n rounds) will be training period; will attempt to balance pairs
