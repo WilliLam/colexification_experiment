@@ -437,6 +437,7 @@ server <- function(input, output, session){
       #
       
       pairs2 <<- generated_stims[[whichstim]]$pairs  # "pairs" is a graphics function, clashes
+      isBaseline <<- pairs2$isbaseline[1]
       lang  <<- generated_stims[[whichstim]]$stims
       vocab <<- generated_stims[[whichstim]]$words
       
@@ -446,7 +447,7 @@ server <- function(input, output, session){
         BREAKTIME = 300 
       }
       # --------------------------------- -
-      
+      global$isbaseline = isBaseline
       global$pairsmax = nrow(pairs2)
       global$guessvector = rep(F, nrow(pairs2))
       
@@ -692,6 +693,8 @@ server <- function(input, output, session){
             #print(paste(pairs2[global$ipair, 1:2, drop=T], collapse=" " ) ) # debug
             return(
               tagList(
+                # super hacky, but we store the cost length in the div
+                div(id=global$isbaseline, class="costLength", style="background-color: black;"),
                 #h1(paste0("Score: ", global$score, "/", global$pairsmax)),
                 h1f(),
                 # old:
@@ -701,7 +704,7 @@ server <- function(input, output, session){
                 #
                 h2( 
                   #rndposition( c(pairs2$pair1[global$ipair], pairs2$pair2[global$ipair]) )
-                  coloredposition( c(pairs2$say[global$ipair],  # new: one to send always left+colored
+                    coloredposition( c(pairs2$say[global$ipair],  # new: one to send always left+colored
                                      setdiff(c(pairs2$pair1[global$ipair], pairs2$pair2[global$ipair]),
                                              pairs2$say[global$ipair]
                                      )

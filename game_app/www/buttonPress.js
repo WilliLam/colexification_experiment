@@ -2,10 +2,34 @@ var start = null;
 var wordChoice = null;
 var mouseUp = false;
 var progress = 0;
-var wordLen = null;
+
+var isBaselineStr;
+var isBaseline;
+
+window.onload = init;
+function init(){ 
+  
+  console.log(isBaseline);
+};
+
+function timeToHold(wordLen) {
+  //5x for greater effect
+  if (wordLen < 5) {
+    return 10;
+  } else {
+    return 50;
+  }
+  //return wordLen**1.6
+}
+
+
+
 
 //console.log("loading");
 document.addEventListener('mousedown',function(e){
+  var isBaselineStr = document.getElementsByClassName("costLength")[0].id;
+  var isBaseline = (isBaselineStr == "TRUE");
+  //console.log(isBaselineStr);
   console.log("mouse down");
   start = new Date();
   try{
@@ -20,7 +44,13 @@ document.addEventListener('mousedown',function(e){
           var width = 1;
           wordLen = e.target.textContent.replace(/\s+/g, '').length;
           wordChoice = e.target.textContent.replace(/\s+/g, '');
-          var id = setInterval(frame, timeToHold(wordLen));
+          
+          if (isBaseline) {
+            var id = setInterval(frame, 1);  
+          } else{
+            var id = setInterval(frame, timeToHold(wordLen));  
+          }
+          
           function frame() {
             if (indicatorDiv.style.backgroundColor == "red") {
               clearInterval(id);
@@ -34,6 +64,10 @@ document.addEventListener('mousedown',function(e){
               clearInterval(id);
               progress = 0;
             } else {
+              if (isBaseline) {
+                width = 100;
+                indicatorDiv.style.width = width + "%";
+              }
               width++;
               indicatorDiv.style.width = width + "%";
             }
@@ -45,21 +79,14 @@ document.addEventListener('mousedown',function(e){
     }
     }
     catch(TypeError) {
-      //console.log(TypeError)
+      console.log(TypeError)
     }
 })
 
-function timeToHold(wordLen) {
-  //5x for greater effect
-  if (wordLen < 5) {
-    return 10;
-  } else {
-    return 50;
-  }
-  //return wordLen**1.6
-}
 
 document.addEventListener('mouseup', function(e) {
+          var isBaselineStr = document.getElementsByClassName("costLength")[0].id;
+          var isBaseline = (isBaselineStr == "TRUE");
           try {
             console.debug("parent nodes")
             console.debug(e.target && e.target.parentNode.childNodes);
@@ -78,6 +105,16 @@ document.addEventListener('mouseup', function(e) {
           console.info("delta", delta);
           console.log(wordChoice)
           console.log(timeToHold(wordLen)*100)
+          if (isBaseline) {
+            if (mouseUpChoice == wordChoice ) {
+              Shiny.setInputValue("signalChoice", wordChoice, {priority: "event"});
+              progress = 0;
+              start = null;
+            }
+            else {
+              
+            }
+          } 
           if (delta >= timeToHold(wordLen)*100 && mouseUpChoice == wordChoice ) {
               console.log("changed");
               
@@ -117,5 +154,6 @@ document.addEventListener('mouseup', function(e) {
             }
           }
           })
+
 
 
