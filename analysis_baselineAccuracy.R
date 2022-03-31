@@ -14,6 +14,24 @@ library(dplyr)
 source("expgen_scripts.R") # full path to the scripts file
 resultsfolder = "RESULTS"  # full path to this unpacked folder, which contains the folders of RData files with the raw data (only needed if parsing from raw data), if not:
 
+grab_Meanings = function(
+  subfolder = "",
+  dyadsuffix = NA,
+  condprefix = "",
+  bogus = c(),
+  accthreshold = 0.59,
+  edb=resultsfolder, 
+  doentropy=F, doinfandcompl=F
+){
+  path = file.path(edb, subfolder)
+  # generated_stims = readRDS(file.path(path,"generated_stims.RDS"))
+  
+  f = list.files(path, full.names = F, pattern="meaningTest.*")
+  f = f[order(sapply(f, function(x) as.numeric(gsub("^([0-9]{1,3}).*","\\1",x) )))]
+  res = lapply(f, function(x) data.frame(read_csv(file.path(path,x))) )
+  return(res)
+}
+
 
 grab_accuracy = function(
   subfolder = "",
@@ -27,7 +45,7 @@ grab_accuracy = function(
   path = file.path(edb, subfolder)
   generated_stims = readRDS(file.path(path,"generated_stims.RDS"))
   
-  f = list.files(path, full.names = F, pattern="*.csv")
+  f = list.files(path, full.names = F, pattern="trajectory.*.csv")
   f = f[order(sapply(f, function(x) as.numeric(gsub("^([0-9]{1,3}).*","\\1",x) )))]
   res = lapply(f, function(x) data.frame(read_csv(file.path(path,x))) )
   uniqueIters = unique(unlist(res[[1]]["iterationNum"], use.names=FALSE))
@@ -68,12 +86,20 @@ ggplot(accuracies, aes(alpha, accuracy )) +
 #megadat = rbind(origdat,repldat, weakdat, newdat)
 #length(table(megadat$dyad))
 
-# - data collection took place over multiple months and required generating stimuli multiple times; the function above collects all the data from all the folders and makes sure IDs don't overlap.
 
-#### Custom experiment and plot ####
+# Plot probability of null
+meaningTest1 <- grab_Meanings("csv/Baseline/baselinegoodalpha0uttcost/alpha1", 0, "0nouttcost_",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)[[1]]
 
-# glmer(colextarget ~ isBaseline*row2   +
-#         hasUttcost +
-#         (1  + isBaseline | meaning) + 
-#         (1  | dyad/sender ), 
+lastRounds = meaningTest1[meaningTest1$trialNum > 90,]
+lastRounds = lastRounds[lastRounds$word == "null",]
 
+mean(lastRounds$val)
+sd(lastRounds$val)
+
+meaningTest2 <- grab_Meanings("csv/Baseline/baselinegoodalpha0uttcost/alpha7", 0, "0nouttcost_",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)[[1]]
+
+lastRounds = meaningTest2[meaningTest2$trialNum > 90,]
+lastRounds = lastRounds[lastRounds$word == "null",]
+
+mean(lastRounds$val)
+sd(lastRounds$val)

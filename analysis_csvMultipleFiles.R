@@ -59,8 +59,8 @@ do_expmdat_binary4_csv = function(res,generated_stims, accthreshold, alsoburnin=
       # mutate(rown=1:nrow(.))   # proper trial numbers (can be rescaled later)
     # TODO have to +1 for .csv because 0-indexing
     # CHANGED TO 2 BECAUSE BASELINE IS 2
-    meanings = generated_stims[[2]]$words
-    stimtargets = generated_stims[[2]]$targets
+    meanings = generated_stims[[1]]$words
+    stimtargets = generated_stims[[1]]$targets
     # -> need to check against stim set directly not tarx2, as weakhyp uses target words in distractors
     
     if(doinfandcompl){ # additional structures if doing this
@@ -121,6 +121,7 @@ do_expmdat_binary4_csv = function(res,generated_stims, accthreshold, alsoburnin=
       # fix experiment df:
       if(!alsoburnin){
         df$isburnin = df$row %in% burnin
+        # if error, usually problem with setting generated_stims
         df = df %>% dplyr::filter(!(row %in% burnin) ) 
       } else {
         df$isburnin = df$row %in% burnin
@@ -259,8 +260,8 @@ do_expmdat_fromfile_csv = function(
 # LOAD FILES
 # Uncomment to load and parse from scratch instead
 # 
-origdat_baselinenoutt = do_expmdat_fromfile_csv("discountFactorTest/lowDiscount", 0, "lowDiscount",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
-origdat_baselineutt = do_expmdat_fromfile_csv("discountFactorTest/highDiscount", 0, "highDiscount",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
+origdat_baselinenoutt = do_expmdat_fromfile_csv("ConditionC/nouttcost/", 0, "noutt",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
+origdat_baselineutt = do_expmdat_fromfile_csv("ConditionC/uttcost/", 0, "utt",bogus = c(15), accthreshold = 0.59, edb=resultsfolder)
 origdat = rbind(origdat_baselinenoutt, origdat_baselineutt)
 
 #repldat = rbind(do_expmdat_fromfile("repli", 1000, "repli_", c(44,11),edb=resultsfolder), do_expmdat_fromfile("repli2", 2000, "repli_", edb=resultsfolder))
@@ -305,8 +306,8 @@ ZScore = calculateZScore(origdat_baselinenoutt, origdat_baselineutt)
 
 # doesn't matterthat this odesn't work
 # ...at the end of a game, the pooled probability estimate of that is only
-c(predict(origmodel,newdata=data.frame(condition="lowDiscounttarget", row2=5), re.form=NA, type="response"),
-  predict(origmodel,newdata=data.frame(condition="highDiscounttarget", row2=5), re.form=NA, type="response")) 
+c(predict(origmodel,newdata=data.frame(condition="noutttarget", row2=0.8), re.form=NA, type="response"),
+  predict(origmodel,newdata=data.frame(condition="utttarget", row2=0.8), re.form=NA, type="response")) 
 
 # This procedure, repeated for all players across all 41 games, yields a dataset of...
 nrow(origdat)
